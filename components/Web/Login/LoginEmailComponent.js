@@ -1,11 +1,48 @@
-import { Button, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import RoundContainer from '../RoundContainer';
+import { Button, Image, Pressable, StyleSheet, Text, TextInput, View, Alert } from 'react-native';
+import RoundContainer from '../../RoundContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import NormalButton from '../NormalButton';
+import NormalButton from '../../NormalButton';
+import { API } from '../../../constants/API';
+import axios from 'axios';
 
 const LoginEmailComponent = () => {
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
+    const handleLogin = async () => {
+        try {
+            const response = await axios.post(API.LOGIN, {
+                email: email,
+                password: password
+            });
+            if (response.status === 200) {
+                console.log('Đăng nhập thành công');
+            }
+            else {
+                console.log('Email hoặc mật khẩu không đúng');
+            }
+        }
+        catch (error) {
+            console.log("Lỗi khi đăng nhập: " + error);
+        }
+    }
+
+    const handleForgotPassword = async () => {
+        try {
+            console.log("Gửi email đến: " + email);
+            const response = await axios.post(API.SEND_OTP, {
+                email: email
+            });
+            if (response.status === 200) {
+                console.log("Gửi email thành công");
+                navigation.navigate('ForgetPassword');
+            }
+        }
+        catch (error) {
+            console.log("Lỗi khi quên mật khẩu: " + error);
+        }
+    }
     return (
         <RoundContainer style={{ ...styles.container, width: '70%' }}>
             <Pressable
@@ -15,17 +52,22 @@ const LoginEmailComponent = () => {
                 }}>
                 <Ionicons name="arrow-back" size={28} color="black" />
             </Pressable>
-            <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
+            <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Đăng nhập với email</Text>
             <View style={styles.form}>
                 <Text style={styles.label}>Email<Text style={{ color: 'red' }}>*</Text></Text>
-                <TextInput placeholder='Nhập email' style={styles.input} />
+                <TextInput
+                    placeholder='Nhập email'
+                    style={styles.input}
+                    onChangeText={(text) => setEmail(text)}
+                />
                 <Text style={styles.label}>Mật khẩu<Text style={{ color: 'red' }}>*</Text></Text>
                 <View style={styles.passwordContainer}>
                     <TextInput
                         placeholder='Nhập mật khẩu'
                         style={styles.passwordInput}
                         secureTextEntry={!showPassword}
+                        onChangeText={(text) => setPassword(text)}
                     />
                     <Pressable onPress={() => setShowPassword(!showPassword)}>
                         <Ionicons
@@ -36,14 +78,14 @@ const LoginEmailComponent = () => {
                         />
                     </Pressable>
                 </View>
-                <Pressable style={styles.forgotPassword}
-                    onPress={() => { navigation.navigate('ForgetPassword') }}>
-                    Quên mật khẩu?
+                <Pressable
+                    onPress={handleForgotPassword}>
+                    <Text style={styles.forgotPassword}>Quên mật khẩu?</Text>
                 </Pressable>
                 <View style={{ alignItems: 'center' }}>
                     <NormalButton
                         title='Đăng nhập'
-                        onPress={() => { }}
+                        onPress={handleLogin}
                         style={{ width: '30%', marginTop: 10 }}
                     />
                 </View>
@@ -65,7 +107,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        fontFamily: 'Arial',
+        textAlign: 'center'
     },
     form: {
         width: '100%',
@@ -97,7 +139,6 @@ const styles = StyleSheet.create({
     },
     forgotPassword: {
         fontSize: 16,
-        fontFamily: 'Arial',
         fontWeight: 'bold',
         color: '#6793e3',
         textAlign: 'right'

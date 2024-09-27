@@ -1,12 +1,41 @@
 import { Button, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import RoundContainer from '../RoundContainer';
+import RoundContainer from '../../RoundContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import NormalButton from '../NormalButton';
+import { useNavigation } from '@react-navigation/native';
+import NormalButton from '../../NormalButton';
+import axios from 'axios';
+import { API } from '../../../constants/API';
 
 const RegisterComponent = () => {
+    const navigation = useNavigation();
+    const [email, setEmail] = useState('');
+    const [password, setPassword] = useState('');
+    const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+    const handleRegister = async () => {
+        try {
+            if (password !== confirmPassword) {
+                console.log('Mật khẩu không khớp');
+                return;
+            }
+            const response = await axios.post(API.SEND_OTP, {
+                email
+            });
+            if (response.status === 200) {
+                console.log("Gửi email thành công");
+                console.log({email: email});
+                // Truyền email trực tiếp khi chuyển hướng
+                navigation.navigate('ForgetPassword', { email: email });
+            } else {
+                console.log('Email đã được sử dụng');
+            }
+        }
+        catch (error) {
+            console.log("Lỗi khi đăng ký: " + error);
+        }
+    };
     return (
         <RoundContainer style={{ ...styles.container, width: '70%' }}>
             <Pressable
@@ -16,17 +45,19 @@ const RegisterComponent = () => {
                 }}>
                 <Ionicons name="arrow-back" size={28} color="black" />
             </Pressable>
-            <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
+            <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Đăng ký tài khoản AIC</Text>
             <View style={styles.form}>
                 <Text style={styles.label}>Email<Text style={{ color: 'red' }}>*</Text></Text>
-                <TextInput placeholder='Nhập email' style={styles.input} />
+                <TextInput placeholder='Nhập email' style={styles.input} value={email} onChangeText={setEmail} />
                 <Text style={styles.label}>Mật khẩu<Text style={{ color: 'red' }}>*</Text></Text>
                 <View style={styles.passwordContainer}>
                     <TextInput
                         placeholder='Nhập mật khẩu'
                         style={styles.passwordInput}
                         secureTextEntry={!showPassword}
+                        value={password}
+                        onChangeText={setPassword}
                     />
                     <Pressable onPress={() => setShowPassword(!showPassword)}>
                         <Ionicons
@@ -43,6 +74,8 @@ const RegisterComponent = () => {
                         placeholder='Nhập lại mật khẩu'
                         style={styles.passwordInput}
                         secureTextEntry={!showConfirmPassword}
+                        value={confirmPassword}
+                        onChangeText={setConfirmPassword}
                     />
                     <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                         <Ionicons
@@ -56,7 +89,7 @@ const RegisterComponent = () => {
                 <View style={{ alignItems: 'center' }}>
                     <NormalButton
                         title='Đăng ký'
-                        onPress={() => { }}
+                        onPress={handleRegister}
                         style={{ width: '30%', marginTop: 10 }}
                     />
                 </View>
@@ -78,7 +111,7 @@ const styles = StyleSheet.create({
     title: {
         fontSize: 20,
         fontWeight: 'bold',
-        fontFamily: 'Arial',
+        textAlign: 'center'
     },
     form: {
         width: '100%',

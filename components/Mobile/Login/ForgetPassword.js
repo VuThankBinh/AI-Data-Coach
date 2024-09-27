@@ -1,10 +1,12 @@
 import { Button, Image, Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
-import RoundContainer from '../RoundContainer';
+import RoundContainer from '../../RoundContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useRef } from 'react';
-import NormalButton from '../NormalButton';
+import NormalButton from '../../NormalButton';
+import { useNavigation } from 'expo-router';
 
 const ForgetPassword = () => {
+    const navigation = useNavigation();
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
 
@@ -29,16 +31,17 @@ const ForgetPassword = () => {
     };
 
     return (
-        <RoundContainer style={{ ...styles.container, width: '70%' }}>
+        <View style={{ ...styles.container, backgroundColor: '#fff', paddingHorizontal: 10 }}>
+            <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Pressable
-                style={{ position: 'absolute', top: 20, left: 20 }}
+                style={{ position: 'absolute', top: 30, left: 30 }}
                 onPress={() => {
-                    navigation.back();
+                    navigation.goBack();
                 }}>
-                <Ionicons name="arrow-back" size={28} color="black" />
+                <Ionicons name="arrow-back" size={38} color="black" />
             </Pressable>
-            <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Vui lòng nhập mã xác nhận</Text>
+            <Text style={styles.detail}>Mã xác nhận đã được AIC gửi đến email của bạn. Vui lòng nhập mã xác nhận bên dưới</Text>
             <View style={styles.form}>
                 <View style={styles.otpContainer}>
                     {otp.map((digit, index) => (
@@ -54,46 +57,62 @@ const ForgetPassword = () => {
                         />
                     ))}
                 </View>
-                <Text style={styles.label}>Mã xác nhận đã được gửi về email của bạn!</Text>
-                <Pressable style={styles.resendCode}
-                    onPress={() => { navigation.navigate('ForgetPassword') }}>
-                    Chưa nhận được mã?
-                </Pressable>
                 <View style={{ alignItems: 'center' }}>
                     <NormalButton
                         title='Xác nhận'
                         onPress={() => { }}
-                        style={{ width: '30%', marginTop: 10 }}
+                        style={{ width: '100%', marginTop: 10 }}
                     />
                 </View>
+                <View style={{
+                    flexDirection: 'row',
+                    justifyContent: 'center',
+                    alignItems: 'center',
+                    margin: 20
+                }}>
+                    <Text style={{ fontSize: 16, marginRight: 5 }}>
+                        Chưa nhận được mã?
+                    </Text>
+                    <Pressable
+                        onPress={() => { navigation.navigate('ForgetPassword') }}>
+                        <Text style={styles.resendCode}>Chưa nhận được mã?</Text>
+                    </Pressable>
+                </View>
             </View>
-        </RoundContainer>
+        </View>
     );
 }
 
 const styles = StyleSheet.create({
     container: {
         flex: 1,
-        justifyContent: 'center',
         alignItems: 'center',
     },
     logo: {
-        width: 130,
-        height: 80,
-        resizeMode: 'contain'
+        height: 120,
+        resizeMode: 'contain',
+        marginTop: 20
     },
     title: {
-        fontSize: 20,
+        fontSize: 24,
         fontWeight: 'bold',
-        fontFamily: 'Arial',
+        textAlign: 'center',
+        marginTop: 20
     },
     form: {
         width: '100%',
-        padding: 20
+        padding: 20,
+        marginTop: 40
     },
     label: {
+        fontSize: 18,
+        marginBottom: 10
+    },
+    detail: {
         fontSize: 16,
-        marginBottom: 5
+        color: '#737373',
+        textAlign: 'center',
+        marginTop: 20
     },
     otpContainer: {
         flexDirection: 'row',
@@ -120,10 +139,8 @@ const styles = StyleSheet.create({
     },
     resendCode: {
         fontSize: 16,
-        fontFamily: 'Arial',
         fontWeight: 'bold',
-        color: '#6793e3',
-        textAlign: 'right'
+        color: '#6793e3'
     }
 });
 export default ForgetPassword;

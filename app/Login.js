@@ -1,24 +1,31 @@
-import LoginMain from "../components/Login/LoginMain";
-import LoginComponent from "../components/Login/LoginComponent";
+import { Platform } from 'react-native';
+import LoginMain from "../components/Web/Login/LoginMain";
+import LoginComponent from "../components/Web/Login/LoginComponent";
+import MobileLoginComponent from "../components/Mobile/Login/LoginComponent";
 import { useEffect, useState } from "react";
+
 export default function Login() {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
-        const checkIsMobile = () => {
-            setIsMobile(window.innerWidth <= 768);
-        };
-        checkIsMobile();
-        window.addEventListener("resize", checkIsMobile);
-        return () => {
-            window.removeEventListener("resize", checkIsMobile);
-        };
+        if (Platform.OS === 'web') {
+            const checkIsMobile = () => {
+                setIsMobile(window.innerWidth <= 768);
+            };
+            checkIsMobile();
+            window.addEventListener("resize", checkIsMobile);
+            return () => {
+                window.removeEventListener("resize", checkIsMobile);
+            };
+        } else {
+            setIsMobile(true);
+        }
     }, []);
 
     return (
         <>
             {isMobile ? (
-                <LoginComponent />
+                <MobileLoginComponent />
             ) : (
                 <LoginMain>
                     <LoginComponent />

@@ -1,7 +1,7 @@
 import * as React from 'react';
-import RoundContainer from "../RoundContainer";
+import RoundContainer from "../../RoundContainer";
 import { Image, Text, Button, StyleSheet, Pressable } from "react-native";
-import ShadowButton from "../ShadowButton";
+import ShadowButton from "../../ShadowButton";
 // import * as WebBrowser from 'expo-web-browser';
 // import * as Google from 'expo-auth-session/providers/google';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -91,10 +91,10 @@ import ShadowButton from "../ShadowButton";
 //         </RoundContainer>
 //     );
 // }
-const LoginComponent2 = () => {
+const LoginComponent = () => {
     return (
         <RoundContainer style={{ ...styles.container, width: '70%' }}>
-            <Image source={require('../../assets/images/logo.png')} style={styles.logo} />
+            <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Tham gia ngay khoá học Code cùng với AI thông minh</Text>
             <ShadowButton
                 title="Đăng nhập với email"
@@ -110,17 +110,24 @@ const LoginComponent2 = () => {
                 }}
                 style={{ backgroundColor: '#fff', margin: 5 }}
                 textStyle={{ color: '#000', lineHeight: 30 }}
-                icon="../../assets/images/icon-google.png"
+                icon={require("../../../assets/images/icon-google.png")}
             />
-            <Text style={{ fontSize: 16, width: '100%', textAlign: 'right', marginTop: 5, marginRight: 20 }}>
+            <Text
+                style={{
+                    fontSize: 16,
+                    width: '100%',
+                    textAlign: 'right',
+                    marginTop: 5,
+                    marginRight: 20
+                }}
+            >
                 Chưa có tài khoản?
                 <Pressable
-                    style={{ color: '#6793e3' }}
                     onPress={() => {
                         navigation.navigate('Register');
                     }}
                 >
-                    Đăng ký
+                    <Text style={{ fontSize: 16, color: '#6793e3' }}>Đăng ký</Text>
                 </Pressable>
             </Text>
             {/* <Button
@@ -147,7 +154,7 @@ const styles = StyleSheet.create({
         fontSize: 20,
         fontWeight: 'bold',
         marginBottom: 20,
-        fontFamily: 'Arial',
+        textAlign: 'center'
     }
 });
-export default LoginComponent2;
+export default LoginComponent;

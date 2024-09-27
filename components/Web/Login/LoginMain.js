@@ -6,7 +6,7 @@ export default function LoginMain({ children }) {
         <View style={{ ...styles.container, flexDirection: 'row', backgroundColor: '#e5efff', padding: 40 }}>
             <Stack.Screen options={{ headerShown: false }} />
             <View style={{ ...styles.container, width: '30%' }}>
-                <Image source={require('../../assets/images/login-logo.png')} style={styles.loginLogo} />
+                <Image source={require('../../../assets/images/login-logo.png')} style={styles.loginLogo} />
                 <Text style={styles.title}>Học code cùng với gia sư AI miễn phí</Text>
                 <Text style={styles.text}>• Việc học những kiến thức về code sẽ trở nên dễ dàng hơn bao giờ hết</Text>
                 <Text style={styles.text}>• Đồng hành bên bạn là một gia sư Ai thông minh</Text>
@@ -31,13 +31,12 @@ const styles = StyleSheet.create({
         fontSize: 18,
         textAlign: 'left',
         width: '75%',
-        fontFamily: 'Arial',
     },
     title: {
         fontSize: 24,
         fontWeight: 'bold',
         marginBottom: 20,
-        fontFamily: 'Arial',
         color: '#2667df',
+        textAlign: 'center'
     }
 });
