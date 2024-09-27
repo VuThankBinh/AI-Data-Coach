@@ -2,40 +2,42 @@ import { Button, Image, Pressable, StyleSheet, Text, TextInput, View } from 'rea
 import RoundContainer from '../../RoundContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { useState } from 'react';
-import { useNavigation } from '@react-navigation/native';
+import { useNavigation, useRoute } from '@react-navigation/native';
 import NormalButton from '../../NormalButton';
 import axios from 'axios';
 import { API } from '../../../constants/API';
 
-const RegisterComponent = () => {
+const ResetPasswordComponent = () => {
     const navigation = useNavigation();
-    const [email, setEmail] = useState('');
+    const route = useRoute();
+    const resetPasswordInfo = route.params?.resetPasswordInfo;
     const [password, setPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
     const [showConfirmPassword, setShowConfirmPassword] = useState(false);
-    const handleRegister = async () => {
+    const handleResetPassword = async () => {
         try {
             if (password !== confirmPassword) {
                 console.log('Mật khẩu không khớp');
                 return;
             }
-            const response = await axios.post(API.SEND_OTP, {
-                email
+            console.log({
+                email: resetPasswordInfo.email,
+                password: password
+            });
+            const response = await axios.post(API.RESET_PASSWORD, {
+                email: resetPasswordInfo.email,
+                password: password
             });
             if (response.status === 200) {
-                console.log("Gửi email thành công");
-                const registerInfo = {
-                    email: email,
-                    password: password
-                };
-                navigation.navigate('VerifyOTP', { registerInfo });
+                console.log("Đặt lại mật khẩu thành công");
+                navigation.navigate('LoginEmail');
             } else {
-                console.log('Email đã được sử dụng');
+                console.log('Đặt lại mật khẩu thất bại');
             }
         }
         catch (error) {
-            console.log("Lỗi khi đăng ký: " + error);
+            console.log("Lỗi khi đặt lại mật khẩu: " + error);
         }
     };
     return (
@@ -48,10 +50,8 @@ const RegisterComponent = () => {
                 <Ionicons name="arrow-back" size={28} color="black" />
             </Pressable>
             <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
-            <Text style={styles.title}>Đăng ký tài khoản AIC</Text>
+            <Text style={styles.title}>Đặt lại mật khẩu tài khoản AIC</Text>
             <View style={styles.form}>
-                <Text style={styles.label}>Email<Text style={{ color: 'red' }}>*</Text></Text>
-                <TextInput placeholder='Nhập email' style={styles.input} value={email} onChangeText={setEmail} />
                 <Text style={styles.label}>Mật khẩu<Text style={{ color: 'red' }}>*</Text></Text>
                 <View style={styles.passwordContainer}>
                     <TextInput
@@ -90,8 +90,8 @@ const RegisterComponent = () => {
                 </View>
                 <View style={{ alignItems: 'center' }}>
                     <NormalButton
-                        title='Đăng ký'
-                        onPress={handleRegister}
+                        title='Đặt lại mật khẩu'
+                        onPress={handleResetPassword}
                         style={{ width: '30%', marginTop: 10 }}
                     />
                 </View>
@@ -144,4 +144,4 @@ const styles = StyleSheet.create({
         padding: 10
     }
 });
-export default RegisterComponent;
+export default ResetPasswordComponent;

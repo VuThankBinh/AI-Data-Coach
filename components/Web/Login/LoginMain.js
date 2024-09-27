@@ -3,9 +3,9 @@ import { Stack } from 'expo-router';
 
 export default function LoginMain({ children }) {
     return (
-        <View style={{ ...styles.container, flexDirection: 'row', backgroundColor: '#e5efff', padding: 40 }}>
+        <View style={{ ...styles.container, flex: 1, flexDirection: 'row', backgroundColor: '#e5efff', padding: 40 }}>
             <Stack.Screen options={{ headerShown: false }} />
-            <View style={{ ...styles.container, width: '30%' }}>
+            <View style={{ ...styles.container, width: '60%', paddingHorizontal: 60 }}>
                 <Image source={require('../../../assets/images/login-logo.png')} style={styles.loginLogo} />
                 <Text style={styles.title}>Học code cùng với gia sư AI miễn phí</Text>
                 <Text style={styles.text}>• Việc học những kiến thức về code sẽ trở nên dễ dàng hơn bao giờ hết</Text>
@@ -18,7 +18,6 @@ export default function LoginMain({ children }) {
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },

@@ -2,6 +2,7 @@ import * as React from 'react';
 import RoundContainer from "../../RoundContainer";
 import { Image, Text, Button, StyleSheet, Pressable } from "react-native";
 import ShadowButton from "../../ShadowButton";
+import { useNavigation } from '@react-navigation/native';
 // import * as WebBrowser from 'expo-web-browser';
 // import * as Google from 'expo-auth-session/providers/google';
 // import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -92,8 +93,9 @@ import ShadowButton from "../../ShadowButton";
 //     );
 // }
 const LoginComponent = () => {
+    const navigation = useNavigation();
     return (
-        <RoundContainer style={{ ...styles.container, width: '70%' }}>
+        <RoundContainer style={{ ...styles.container, width: '40%' }}>
             <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Text style={styles.title}>Tham gia ngay khoá học Code cùng với AI thông minh</Text>
             <ShadowButton
@@ -141,7 +143,6 @@ const LoginComponent = () => {
 }
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
         justifyContent: 'center',
         alignItems: 'center',
     },

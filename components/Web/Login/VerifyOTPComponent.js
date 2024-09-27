@@ -10,7 +10,8 @@ import { API } from '../../../constants/API';
 const ForgetPassword = () => {
     const navigation = useNavigation();
     const route = useRoute();
-    const email = route.params?.email;
+    const registerInfo = route.params?.registerInfo;
+    const resetPasswordInfo = route.params?.resetPasswordInfo;
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
 
@@ -36,21 +37,43 @@ const ForgetPassword = () => {
 
     const handleVerifyOTP = async () => {
         const otpString = otp.join('');
-        console.log({
-            email,
-            otp: otpString
-        });
         try {
-            const response = await axios.post(API.VERIFY_OTP, {
-                email,
+            const data = {
+                email: resetPasswordInfo.email || registerInfo.email,
                 otp: otpString
-            });
+            }
+            console.log(data);
+            const response = await axios.post(API.VERIFY_OTP, data);
             if (response.status === 200) {
                 console.log("Xác nhận mã thành công");
                 // Thêm xử lý sau khi xác nhận thành công (ví dụ: chuyển hướng)
+                if(registerInfo) {
+                    handleRegister();
+                }
+                else if (resetPasswordInfo) {
+                    console.log("Đặt lại mật khẩu" + resetPasswordInfo.email);
+                    navigation.navigate('ResetPassword', { resetPasswordInfo });
+                }
+                else {
+                    console.log("Quên mật khẩu");
+                }
             }
         } catch (error) {
             console.log("Lỗi khi xác nhận mã: " + error);
+        }
+    }
+
+    const handleRegister = async () => {
+        try {
+            const response = await axios.post(API.REGISTER, {
+                accountType: "email",
+                email: registerInfo.email,
+                isGoogleSignUp: false,
+                password: registerInfo.password
+            });
+            console.log(response.data.message);
+        } catch (error) {
+            console.log("Lỗi khi đăng ký tài khoản: " + error);
         }
     }
 
@@ -94,7 +117,6 @@ const ForgetPassword = () => {
                         style={{ width: '30%', marginTop: 10 }}
                     />
                 </View>
-                <Text>Email: {email}</Text>
             </View>
         </RoundContainer>
     );

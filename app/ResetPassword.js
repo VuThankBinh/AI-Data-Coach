@@ -1,9 +1,9 @@
 import LoginMain from "../components/Web/Login/LoginMain";
-import ForgetPassword from "../components/Web/Login/ForgetPassword";
-import MobileForgetPassword from "../components/Mobile/Login/ForgetPassword";
+import ResetPasswordComponent from "../components/Web/Login/ResetPasswordComponent";
+import MobileVerifyOTPComponent from "../components/Mobile/Login/VerifyOTPComponent";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
-export default function Login() {
+export default function ResetPassword() {
     const [isMobile, setIsMobile] = useState(false);
 
     useEffect(() => {
@@ -23,10 +23,10 @@ export default function Login() {
     return (
         <>
             {isMobile ? (
-                <MobileForgetPassword />
+                <MobileVerifyOTPComponent />
             ) : (
                 <LoginMain>
-                    <ForgetPassword />
+                    <ResetPasswordComponent />
                 </LoginMain>
             )}
         </>

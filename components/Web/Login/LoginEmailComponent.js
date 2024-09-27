@@ -5,8 +5,10 @@ import { useState } from 'react';
 import NormalButton from '../../NormalButton';
 import { API } from '../../../constants/API';
 import axios from 'axios';
+import { useNavigation } from '@react-navigation/native';
 
 const LoginEmailComponent = () => {
+    const navigation = useNavigation();
     const [email, setEmail] = useState('');
     const [password, setPassword] = useState('');
     const [showPassword, setShowPassword] = useState(false);
@@ -36,7 +38,11 @@ const LoginEmailComponent = () => {
             });
             if (response.status === 200) {
                 console.log("Gửi email thành công");
-                navigation.navigate('ForgetPassword');
+                navigation.navigate('VerifyOTP', {
+                    resetPasswordInfo: {
+                        email: email
+                    }
+                });
             }
         }
         catch (error) {
@@ -48,7 +54,7 @@ const LoginEmailComponent = () => {
             <Pressable
                 style={{ position: 'absolute', top: 20, left: 20 }}
                 onPress={() => {
-                    navigation.back();
+                    navigation.goBack();
                 }}>
                 <Ionicons name="arrow-back" size={28} color="black" />
             </Pressable>
