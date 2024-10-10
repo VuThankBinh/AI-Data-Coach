@@ -51,7 +51,7 @@ const RegisterComponent = () => {
             <Text style={styles.title}>Đăng ký tài khoản AIC</Text>
             <View style={styles.form}>
                 <Text style={styles.label}>Email<Text style={{ color: 'red' }}>*</Text></Text>
-                <TextInput placeholder='Nhập email' style={styles.input} value={email} onChangeText={setEmail} />
+                <TextInput placeholder='Nhập email' style={styles.input} value={email} onChangeText={(text) => setEmail(text)} />
                 <Text style={styles.label}>Mật khẩu<Text style={{ color: 'red' }}>*</Text></Text>
                 <View style={styles.passwordContainer}>
                     <TextInput
@@ -59,7 +59,7 @@ const RegisterComponent = () => {
                         style={styles.passwordInput}
                         secureTextEntry={!showPassword}
                         value={password}
-                        onChangeText={setPassword}
+                        onChangeText={(text) => setPassword(text)}
                     />
                     <Pressable onPress={() => setShowPassword(!showPassword)}>
                         <Ionicons
@@ -77,7 +77,7 @@ const RegisterComponent = () => {
                         style={styles.passwordInput}
                         secureTextEntry={!showConfirmPassword}
                         value={confirmPassword}
-                        onChangeText={setConfirmPassword}
+                        onChangeText={(text) => setConfirmPassword(text)}
                     />
                     <Pressable onPress={() => setShowConfirmPassword(!showConfirmPassword)}>
                         <Ionicons

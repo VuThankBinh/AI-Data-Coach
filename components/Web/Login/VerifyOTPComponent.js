@@ -39,7 +39,7 @@ const ForgetPassword = () => {
         const otpString = otp.join('');
         try {
             const data = {
-                email: resetPasswordInfo.email || registerInfo.email,
+                email: resetPasswordInfo?.email || registerInfo?.email,
                 otp: otpString
             }
             console.log(data);

@@ -6,6 +6,7 @@ import NormalButton from '../../NormalButton';
 import { API } from '../../../constants/API';
 import axios from 'axios';
 import { useNavigation } from '@react-navigation/native';
+import TokenStorage from '../../../constants/TokenStorage'
 
 const LoginEmailComponent = () => {
     const navigation = useNavigation();
@@ -19,7 +20,8 @@ const LoginEmailComponent = () => {
                 password: password
             });
             if (response.status === 200) {
-                console.log('Đăng nhập thành công');
+                await TokenStorage.saveToken(response.token);
+                navigation.navigate('Home');
             }
             else {
                 console.log('Email hoặc mật khẩu không đúng');

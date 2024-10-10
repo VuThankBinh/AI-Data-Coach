@@ -46,8 +46,24 @@ const LoginEmailComponent = () => {
     //     }
     // }
 
-    const handleForgotPassword = () => {
-        navigation.navigate('ForgetPassword');
+    const handleForgotPassword = async () => {
+        try {
+            console.log("Gửi email đến: " + email);
+            const response = await axios.post(API.SEND_OTP, {
+                email: email
+            });
+            if (response.status === 200) {
+                console.log("Gửi email thành công");
+                navigation.navigate('VerifyOTP', {
+                    resetPasswordInfo: {
+                        email: email
+                    }
+                });
+            }
+        }
+        catch (error) {
+            console.log("Lỗi khi quên mật khẩu: " + error);
+        }
     }
     return (
         <View style={{ ...styles.container, backgroundColor: '#fff', paddingHorizontal: 30 }}>

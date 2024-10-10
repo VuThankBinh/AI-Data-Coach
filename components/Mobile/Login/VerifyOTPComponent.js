@@ -3,10 +3,15 @@ import RoundContainer from '../../RoundContainer';
 import { Ionicons } from '@expo/vector-icons';
 import { useState, useRef } from 'react';
 import NormalButton from '../../NormalButton';
-import { useNavigation } from 'expo-router';
+import { useNavigation, useRoute } from '@react-navigation/native';
+import axios from 'axios';
+import { API } from '../../../constants/API';
 
 const ForgetPassword = () => {
     const navigation = useNavigation();
+    const route = useRoute();
+    const registerInfo = route.params?.registerInfo;
+    const resetPasswordInfo = route.params?.resetPasswordInfo;
     const [otp, setOtp] = useState(['', '', '', '', '', '']);
     const inputRefs = useRef([]);
 
@@ -30,14 +35,59 @@ const ForgetPassword = () => {
         }
     };
 
+    const handleVerifyOTP = async () => {
+        const otpString = otp.join('');
+        try {
+            console.log(registerInfo.email);
+            const data = {
+                email: resetPasswordInfo?.email || registerInfo?.email,
+                otp: otpString
+            }
+            console.log(data);
+            const response = await axios.post(API.VERIFY_OTP, data);
+            if (response.status === 200) {
+                console.log("Xác nhận mã thành công");
+                // Thêm xử lý sau khi xác nhận thành công (ví dụ: chuyển hướng)
+                if(registerInfo) {
+                    handleRegister();
+                }
+                else if (resetPasswordInfo) {
+                    console.log("Đặt lại mật khẩu" + resetPasswordInfo.email);
+                    navigation.navigate('ResetPassword', { resetPasswordInfo });
+                }
+                else {
+                    console.log("Quên mật khẩu");
+                }
+            }
+        } catch (error) {
+            console.log("Lỗi khi xác nhận mã: " + error);
+        }
+    }
+
+    const handleRegister = async () => {
+        try {
+            const response = await axios.post(API.REGISTER, {
+                accountType: "email",
+                email: registerInfo.email,
+                isGoogleSignUp: false,
+                password: registerInfo.password
+            });
+            console.log(response.data.message);
+        } catch (error) {
+            console.log("Lỗi khi đăng ký tài khoản: " + error);
+        }
+    }
+
+    const handleGoBack = () => {
+        navigation.goBack();
+    }
+
     return (
         <View style={{ ...styles.container, backgroundColor: '#fff', paddingHorizontal: 10 }}>
             <Image source={require('../../../assets/images/logo.png')} style={styles.logo} />
             <Pressable
                 style={{ position: 'absolute', top: 30, left: 30 }}
-                onPress={() => {
-                    navigation.goBack();
-                }}>
+                onPress={handleGoBack}>
                 <Ionicons name="arrow-back" size={38} color="black" />
             </Pressable>
             <Text style={styles.title}>Vui lòng nhập mã xác nhận</Text>
@@ -60,7 +110,7 @@ const ForgetPassword = () => {
                 <View style={{ alignItems: 'center' }}>
                     <NormalButton
                         title='Xác nhận'
-                        onPress={() => { }}
+                        onPress={handleVerifyOTP}
                         style={{ width: '100%', marginTop: 10 }}
                     />
                 </View>

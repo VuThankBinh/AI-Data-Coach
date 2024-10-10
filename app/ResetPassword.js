@@ -1,6 +1,6 @@
 import LoginMain from "../components/Web/Login/LoginMain";
 import ResetPasswordComponent from "../components/Web/Login/ResetPasswordComponent";
-import MobileVerifyOTPComponent from "../components/Mobile/Login/VerifyOTPComponent";
+import MobileResetPasswordComponent from "../components/Mobile/Login/ResetPasswordComponent";
 import { useEffect, useState } from "react";
 import { Platform } from "react-native";
 export default function ResetPassword() {
@@ -23,7 +23,7 @@ export default function ResetPassword() {
     return (
         <>
             {isMobile ? (
-                <MobileVerifyOTPComponent />
+                <MobileResetPasswordComponent />
             ) : (
                 <LoginMain>
                     <ResetPasswordComponent />
