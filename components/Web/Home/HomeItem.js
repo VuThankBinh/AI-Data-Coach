@@ -1,9 +1,9 @@
-import { StyleSheet, Text, View } from "react-native";
+import { StyleSheet, Text, View, TouchableOpacity } from "react-native";
 import RoundImage from "../../RoundImage";
 
-export default function HomeItem({ title, description, image }) {
+export default function HomeItem({ title, description, image, onPress }) {
     return (
-        <View style={styles.container}>
+        <TouchableOpacity style={styles.container} onPress={onPress}>
             <View style={styles.content}>
                 <View style={styles.imageContainer}>
                     <RoundImage
@@ -14,7 +14,7 @@ export default function HomeItem({ title, description, image }) {
                 <Text style={styles.title}>{title}</Text>
                 <Text style={styles.description}>{description}</Text>
             </View>
-        </View>
+        </TouchableOpacity>
     )
 };
 

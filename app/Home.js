@@ -26,6 +26,7 @@ function Home() {
                     title="Lý thuyết"
                     description="Bắt đầu học những kiến thức nền tảng của những môn học lập trình"
                     image={require('../assets/images/icon-home-item-2.png')}
+                    onPress={() => navigation.navigate('Courses')}
                 />
                 <HomeItem
                     title="Thực hành"
