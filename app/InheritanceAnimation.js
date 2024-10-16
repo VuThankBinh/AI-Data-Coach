@@ -131,6 +131,15 @@ const InheritanceAnimation = () => {
             Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
         }
     };
+    const handlePractice2 = () => {
+        if (codeExercise) {
+            navigation.navigate('quizz', {
+                lessonId
+            });
+        } else {
+            Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
+        }
+    };
 
     return (
         <View style={styles.container}>
@@ -143,6 +152,9 @@ const InheritanceAnimation = () => {
                 </Text>
                 <TouchableOpacity onPress={handlePractice} style={styles.headerButton}>
                     <Text style={styles.headerButtonText}>Thực hành</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handlePractice2} style={styles.headerButton}>
+                    <Text style={styles.headerButtonText}>Ôn tập</Text>
                 </TouchableOpacity>
             </View>
 

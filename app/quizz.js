@@ -19,6 +19,7 @@ export default function App() {
     try {
       const response = await fetch(`${API.API_URL}/lessons/${lessonId}/quizz-exercises`);
       const data = await response.json();
+      console.log(data)
       setLesson(data);
       const formattedQuestions = data
         .filter(exercise => exercise.type === 'single' || exercise.type === 'multiple')

@@ -13,7 +13,7 @@ export default function Practice() {
     const [output, setOutput] = useState('');
     const [chatInput, setChatInput] = useState('');
     const [chatMessages, setChatMessages] = useState([]);
-    const [language, setLanguage] = useState('python');
+    const [language, setLanguage] = useState('');
     const [isExerciseVisible, setIsExerciseVisible] = useState(true);
     const exerciseHeight = useState(new Animated.Value(1))[0];
     const [isCorrect, setIsCorrect] = useState(false);
@@ -201,6 +201,7 @@ export default function Practice() {
                                 <Picker.Item label="Java" value="java" />
                                 <Picker.Item label="C++" value="cpp" />
                                 <Picker.Item label="C#" value="csharp" />
+                                <Picker.Item label="SQL" value="sql"/>
                             </Picker>
                         </View>
                         <TextInput
