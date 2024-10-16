@@ -1,4 +1,4 @@
-const API_URL = 'http://10.4.4.40:3000';
+const API_URL = 'http://localhost:3000';
 
 export const API = {
     API_URL: API_URL,
