@@ -203,6 +203,7 @@ export default function Practice() {
                                 <Picker.Item label="Java" value="java" />
                                 <Picker.Item label="C++" value="cpp" />
                                 <Picker.Item label="C#" value="csharp" />
+                                <Picker.Item label="SQL" value="sql" />
                             </Picker>
                         </View>
                         <TextInput
