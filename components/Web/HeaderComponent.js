@@ -27,11 +27,16 @@ export default function HeaderComponent() {
             </View>
             <View style={{flex: 1, alignItems: 'center', justifyContent: 'flex-end', flexDirection: 'row' }}>
                 <NormalButton
-                    style={{ backgroundColor: '#2667df' }}
+                    style={{ backgroundColor: '#fff', marginHorizontal: 10 }}
+                    title={'Tham gia lớp học'}
+                    textStyle={{ color: '#2667df' }}
+                />
+                <NormalButton
+                    style={{ backgroundColor: '#2667df', marginHorizontal: 10 }}
                     title={'Bắt đầu khóa học'}
                 />
                 <RoundImage
-                    style={{ width: 45, height: 45, marginHorizontal: 20, backgroundColor: '#fff' }}
+                    style={{ width: 45, height: 45, marginHorizontal: 10, backgroundColor: '#fff' }}
                     source={require('../../assets/images/logo.png')}
                 />
             </View>
