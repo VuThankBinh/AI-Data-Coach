@@ -8,6 +8,8 @@ export default function Practice() {
     const navigation = useNavigation();
     const route = useRoute();
     const { exercise } = route.params;
+    console.log(exercise);
+    
 
     const [code, setCode] = useState('');
     const [output, setOutput] = useState('');
@@ -106,10 +108,10 @@ export default function Practice() {
             try {
                 let message = '';
                 if (code == '') {
-                    message = "bạn hãy trả lời bằng tiếng việt: " + chatInput;
+                    message = "bạn hãy trả lời bằng tiếng việt: " + chatInput + " .Đề bài: " + exercise.question + " .Input: " + exercise.input + " .Output: " + exercise.output;
                 }
                 else {
-                    message = "bạn hãy trả lời bằng tiếng việt: " + chatInput + "code: " + code + ", output: " + output + ", language: " + language
+                    message = "bạn hãy trả lời bằng tiếng việt: " + chatInput + "code: " + code + ", output: " + output + ", language: " + language + " .Đề bài: " + exercise.question + " .Input: " + exercise.input + " .Output: " + exercise.output;
                 }
                 console.log(message);
 
@@ -201,7 +203,6 @@ export default function Practice() {
                                 <Picker.Item label="Java" value="java" />
                                 <Picker.Item label="C++" value="cpp" />
                                 <Picker.Item label="C#" value="csharp" />
-                                <Picker.Item label="SQL" value="sql"/>
                             </Picker>
                         </View>
                         <TextInput
