@@ -37,7 +37,7 @@ export default function Practice() {
             };
 
             var selectedConfig = jdoodleConfig[language];
-            const response = await fetch('http://192.168.137.172:3000/combined/execute', {
+            const response = await fetch(`${API.API_URL}/combined/execute`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ export default function Practice() {
                 }
                 console.log(message);
 
-                const response = await fetch('http://192.168.137.172:3000/combined/chat', {
+                const response = await fetch(`${API.API_URL}/combined/chat`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

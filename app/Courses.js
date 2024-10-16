@@ -73,7 +73,7 @@ function Courses() {
             if (selectedSubject) {
                 try {
                     setLoading(true);
-                    const response = await axios.get(`http://192.168.137.172:3000/lessons/user/670e0383b6ca43ae252e4385/subject/${selectedSubject}`);
+                    const response = await axios.get(`${API.API_URL}/lessons/user/670e0383b6ca43ae252e4385/subject/${selectedSubject}`);
                     setLessons(response.data);
                     setLoading(false);
                 } catch (err) {
