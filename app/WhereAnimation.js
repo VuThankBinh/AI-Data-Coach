@@ -58,7 +58,15 @@ const WhereAnimation = () => {
             Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
         }
     };
-
+    const handlePractice2 = () => {
+        if (codeExercise) {
+            navigation.navigate('quizz', {
+                lessonId
+            });
+        } else {
+            Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
+        }
+    };
     const handleQueryChange = (text) => {
         setSelectQuery(text);
         setError(null);
@@ -257,6 +265,9 @@ const WhereAnimation = () => {
                 </Text>
                 <TouchableOpacity onPress={handlePractice} style={styles.headerButton}>
                     <Text style={styles.headerButtonText}>Thực hành</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={handlePractice2} style={styles.headerButton}>
+                    <Text style={styles.headerButtonText}>Ôn tập</Text>
                 </TouchableOpacity>
             </View>
 

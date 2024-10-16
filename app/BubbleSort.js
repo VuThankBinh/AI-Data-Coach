@@ -99,7 +99,15 @@ export default function BubbleSort() {
             Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
         }
     };
-
+    const handlePractice2 = () => {
+        if (codeExercise) {
+            navigation.navigate('quizz', {
+                lessonId
+            });
+        } else {
+            Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
+        }
+    };
     return (
         <View style={styles.container}>
             <View style={styles.header}>
@@ -111,6 +119,9 @@ export default function BubbleSort() {
                 </Text>
                 <TouchableOpacity onPress={() => handlePractice(lessonId)} style={styles.headerButton}>
                     <Text style={styles.headerButtonText}>Thực hành</Text>
+                </TouchableOpacity>
+                <TouchableOpacity onPress={() => handlePractice2(lessonId)} style={styles.headerButton}>
+                    <Text style={styles.headerButtonText}>Ôn tập</Text>
                 </TouchableOpacity>
             </View>
 

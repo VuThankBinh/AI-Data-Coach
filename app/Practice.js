@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { TouchableOpacity, Animated, Modal } from 'react-native';
 import { StyleSheet, View, TextInput, Button, Text, ScrollView, Picker } from 'react-native';
 import { useRoute, useNavigation } from '@react-navigation/native';
+import { API } from '../constants/API';
 
 export default function Practice() {
     const navigation = useNavigation();
