@@ -38,6 +38,7 @@ export default function BubbleSort() {
                 setLessonData(lessonResponse.data);
 
                 const exerciseResponse = await axios.get(`${API.API_URL}/lessons/${lessonId}/code-exercises`);
+                
                 setCodeExercise(exerciseResponse.data);
             } catch (error) {
                 console.error('Lỗi khi tải dữ liệu:', error);
