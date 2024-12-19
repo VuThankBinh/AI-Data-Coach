@@ -1,11 +1,15 @@
-import { Image, StyleSheet } from "react-native"
+import { Image, StyleSheet, Pressable } from "react-native"
 
-export default function RoundImage({ source, style }) {
+export default function RoundImage({ source, style, onPress }) {
     return (
-        <Image
-            source={source}
-            style={{...styles.image, ...style}}
-        />
+        <Pressable
+            onPress={onPress}
+        >
+            <Image
+                source={source}
+                style={{ ...styles.image, ...style }}
+            />
+        </Pressable>
     );
 }
 

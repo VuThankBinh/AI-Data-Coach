@@ -1,12 +1,12 @@
 import { Platform } from "react-native";
-import HomeComponent from "../components/Web/Home/HomeComponent";
-import MobileHomeComponent from "../components/Mobile/Home/HomeComponent";
-import { useEffect, useState } from "react";
+import HomeComponent from "../../components/Web/Home/HomeComponent";
+import MobileCourseComponent from "../../components/Mobile/Lesson/CourseComponent";
+import { useEffect, useLayoutEffect, useState } from "react";
 
-export default function Home() {
+export default function Lessons() {
   const [isMobile, setIsMobile] = useState(false);
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     if (Platform.OS === "web") {
       const checkIsMobile = () => {
         setIsMobile(window.innerWidth <= 768);
@@ -21,5 +21,5 @@ export default function Home() {
     }
   }, []);
 
-  return <>{isMobile ? <MobileHomeComponent /> : <HomeComponent />}</>;
+  return <>{isMobile ? <MobileCourseComponent /> : <HomeComponent />}</>;
 }
