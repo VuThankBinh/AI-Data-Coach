@@ -1,68 +1,194 @@
-import React, { useState, useRef, useEffect } from 'react';
-import { StyleSheet, View, Text, TextInput, TouchableOpacity, ScrollView, Animated, Alert, Dimensions } from 'react-native';
-import { useNavigation, useRoute } from '@react-navigation/native';
-import axios from 'axios';
-import { API } from '../constants/API';
+import React, {
+  useState,
+  useRef,
+  useEffect,
+  useCallback,
+  useMemo,
+} from "react";
+import {
+  StyleSheet,
+  View,
+  Text,
+  TextInput,
+  TouchableOpacity,
+  ScrollView,
+  Alert,
+  Dimensions,
+  Platform,
+} from "react-native";
+import { useNavigation, useRoute } from "@react-navigation/native";
+import axios from "axios";
+import { API } from "../constants/API";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+import { theme } from "../constants/theme";
+import { Ionicons } from "@expo/vector-icons";
+import LessonHeader from "./LessonHeader";
+import Animated, {
+  useSharedValue,
+  useAnimatedStyle,
+  withSequence,
+  withTiming,
+  interpolateColor,
+} from "react-native-reanimated";
 
-const { width } = Dimensions.get('window');
+const { width } = Dimensions.get("window");
+
+const AnimatedCell = React.memo(
+  ({ field, value, isCurrentField }) => {
+    const opacity = useSharedValue(0);
+
+    useEffect(() => {
+      if (isCurrentField) {
+        opacity.value = withTiming(1, { duration: 300 });
+      } else {
+        opacity.value = withTiming(0, { duration: 300 });
+      }
+    }, [isCurrentField]);
+
+    const animatedStyle = useAnimatedStyle(() => ({
+      backgroundColor: interpolateColor(
+        opacity.value,
+        [0, 1],
+        ["white", "rgba(76, 175, 80, 0.5)"]
+      ),
+    }));
+
+    return (
+      <Animated.View style={[styles.tableCell, animatedStyle]}>
+        <Text style={styles.cellText}>{value}</Text>
+      </Animated.View>
+    );
+  },
+  (prevProps, nextProps) => {
+    return (
+      prevProps.isCurrentField === nextProps.isCurrentField &&
+      prevProps.value === nextProps.value
+    );
+  }
+);
+
+const TableRow = React.memo(({ item, columns, currentField }) => {
+  return (
+    <View style={styles.tableRow}>
+      {columns.map((column) => (
+        <AnimatedCell
+          key={column}
+          field={column}
+          value={item[column]}
+          isCurrentField={column === currentField}
+        />
+      ))}
+    </View>
+  );
+});
+
+const TableHeader = React.memo(({ columns }) => {
+  return (
+    <View style={styles.tableRow}>
+      {columns.map((column) => (
+        <View key={column} style={styles.tableHeader}>
+          <Text style={styles.tableHeaderText}>{column}</Text>
+        </View>
+      ))}
+    </View>
+  );
+});
 
 const SelectAnimation = () => {
+  const { top } = useSafeAreaInsets();
+  const marginTop = top > 0 ? top : 0;
   const navigation = useNavigation();
   const route = useRoute();
   const { lessonId } = route.params;
-
+  console.log(">>> lessonId: ", lessonId);
+  const scrollViewRef = useRef(null);
   const [lessonData, setLessonData] = useState(null);
   const [codeExercise, setCodeExercise] = useState(null);
-  const [selectQuery, setSelectQuery] = useState('SELECT * FROM nhanvien');
+  const [selectQuery, setSelectQuery] = useState("SELECT * FROM nhanvien");
   const [sampleData, setSampleData] = useState([
-    { id: 1, ho: 'Nguyễn', ten: 'Văn A', tuoi: 30, chucvu: 'Quản lý', luong: 15000000 },
-    { id: 2, ho: 'Trần', ten: 'Thị B', tuoi: 25, chucvu: 'Nhân viên', luong: 8000000 },
-    { id: 3, ho: 'Lê', ten: 'Văn C', tuoi: 35, chucvu: 'Kỹ sư', luong: 12000000 },
-    { id: 4, ho: 'Phạm', ten: 'Thị D', tuoi: 28, chucvu: 'Kế toán', luong: 10000000 },
-    { id: 5, ho: 'Hoàng', ten: 'Văn E', tuoi: 40, chucvu: 'Giám đốc', luong: 25000000 },
+    {
+      id: 1,
+      ho: "Nguyễn",
+      ten: "Văn A",
+      tuoi: 30,
+      chucvu: "Quản lý",
+      luong: 15000000,
+    },
+    {
+      id: 2,
+      ho: "Trần",
+      ten: "Thị B",
+      tuoi: 25,
+      chucvu: "Nhân viên",
+      luong: 8000000,
+    },
+    {
+      id: 3,
+      ho: "Lê",
+      ten: "Văn C",
+      tuoi: 35,
+      chucvu: "Kỹ sư",
+      luong: 12000000,
+    },
+    {
+      id: 4,
+      ho: "Phạm",
+      ten: "Thị D",
+      tuoi: 28,
+      chucvu: "Kế toán",
+      luong: 10000000,
+    },
+    {
+      id: 5,
+      ho: "Hoàng",
+      ten: "Văn E",
+      tuoi: 40,
+      chucvu: "Giám đốc",
+      luong: 25000000,
+    },
   ]);
   const [result, setResult] = useState(null);
   const [isAnimating, setIsAnimating] = useState(false);
   const [animatedFields, setAnimatedFields] = useState([]);
   const [error, setError] = useState(null);
-  const [delayBetweenColumns, setDelayBetweenColumns] = useState('1000');
+  const [delayBetweenColumns, setDelayBetweenColumns] = useState("1000");
+  const [theoryVisible, setTheoryVisible] = useState(false);
+  const [currentField, setCurrentField] = useState(null);
 
-  const columns = ['id', 'ho', 'ten', 'tuoi', 'chucvu', 'luong'];
-
-  const animatedValues = useRef(
-    columns.reduce((acc, column) => {
-      acc[column] = new Animated.Value(0);
-      return acc;
-    }, {})
-  ).current;
+  const columns = ["id", "ho", "ten", "tuoi", "chucvu", "luong"];
 
   useEffect(() => {
     const fetchData = async () => {
       try {
-        const lessonResponse = await axios.get(`${API.GET_LESSON}/${lessonId}`);
+        const lessonResponse = await axios.get(
+          `${API.GET_LESSONS}/${lessonId}`
+        );
         setLessonData(lessonResponse.data);
 
-        const exerciseResponse = await axios.get(`${API.API_URL}/lessons/${lessonId}/code-exercises`);
-        setCodeExercise(exerciseResponse.data);
+        const exerciseResponse = await axios.get(
+          `${API.API_URL}/lessons/${lessonId}/code-exercises`
+        );
+        if (exerciseResponse) {
+          setCodeExercise(exerciseResponse.data);
+        }
       } catch (error) {
-        console.error('Lỗi khi tải dữ liệu:', error);
-        Alert.alert('Lỗi', 'Không thể tải dữ liệu bài học. Vui lòng thử lại sau.');
+        console.error("Lỗi khi tải dữ liệu:", error);
+        Alert.alert(
+          "Lỗi",
+          "Không thể tải dữ liệu bài học. Vui lòng thử lại sau."
+        );
       }
     };
 
     fetchData();
   }, [lessonId]);
 
-  const handlePractice = () => {
-    if (codeExercise) {
-      navigation.navigate('Practice', {
-        algorithm: 'SelectAnimation',
-        exercise: codeExercise[0]
-      });
-    } else {
-      Alert.alert('Thông báo', 'Dữ liệu bài tập chưa sẵn sàng. Vui lòng thử lại sau.');
+  useEffect(() => {
+    // Kiểm tra nếu result không rỗng thì cuộn xuống
+    if (result && result.length > 0) {
+      scrollToBottom();
     }
-  };
+  }, [result]);
 
   const handleQueryChange = (text) => {
     setSelectQuery(text);
@@ -73,11 +199,14 @@ const SelectAnimation = () => {
     setDelayBetweenColumns(text);
   };
 
-  const executeSelect = () => {
+  const executeSelect = useCallback(() => {
     const fields = parseSelectQuery(selectQuery);
     if (fields.length === 0) {
-      setError('Câu lệnh SELECT không hợp lệ. Vui lòng kiểm tra lại.');
-      Alert.alert('Lỗi', 'Câu lệnh SELECT không hợp lệ. Vui lòng kiểm tra lại.');
+      setError("Câu lệnh SELECT không hợp lệ. Vui lòng kiểm tra lại.");
+      Alert.alert(
+        "Lỗi",
+        "Câu lệnh SELECT không hợp lệ. Vui lòng kiểm tra lại."
+      );
       return;
     }
 
@@ -85,30 +214,15 @@ const SelectAnimation = () => {
     setResult(null);
     setAnimatedFields([]);
     setError(null);
-
-    // Đặt lại tất cả các giá trị animated về 0
-    Object.values(animatedValues).forEach(av => av.setValue(0));
+    setCurrentField(null);
 
     const delay = parseInt(delayBetweenColumns, 10);
-    const animationDuration = delay / 2; // Chia đôi thời gian delay cho animation highlight
 
-    // Tạo chuỗi animation cho từng trường được chọn
-    const animations = fields.map((field, index) => 
-      Animated.sequence([
-        Animated.timing(animatedValues[field], { toValue: 1, duration: animationDuration, useNativeDriver: false }),
-        Animated.timing(animatedValues[field], { toValue: 0, duration: animationDuration, useNativeDriver: false }),
-      ])
-    );
-
-    // Cập nhật animation để sử dụng delay mới
-    Animated.stagger(delay, animations).start(() => {
-      setIsAnimating(false);
-    });
-
-    // Cập nhật thời gian chờ cho mỗi cột
     fields.forEach((field, index) => {
       setTimeout(() => {
-        setResult(prevResult => {
+        setCurrentField(field);
+
+        setResult((prevResult) => {
           const newResult = prevResult ? [...prevResult] : [];
           sampleData.forEach((item, dataIndex) => {
             if (!newResult[dataIndex]) {
@@ -118,125 +232,209 @@ const SelectAnimation = () => {
           });
           return newResult;
         });
-        setAnimatedFields(prev => [...prev, field]);
-      }, delay * (index + 1));
+
+        setAnimatedFields((prev) => [...prev, field]);
+
+        if (index === fields.length - 1) {
+          setTimeout(() => {
+            setCurrentField(null);
+            setIsAnimating(false);
+          }, delay / 2);
+        }
+      }, delay * index);
     });
-  };
+  }, [selectQuery, sampleData, delayBetweenColumns]);
 
   const parseSelectQuery = (query) => {
     const match = query.match(/SELECT\s+(.+)\s+FROM\s+nhanvien/i);
     if (match) {
       const fieldsString = match[1];
-      if (fieldsString === '*') {
+      if (fieldsString === "*") {
         return columns;
       }
-      const selectedFields = fieldsString.split(',').map(field => field.trim());
+      const selectedFields = fieldsString
+        .split(",")
+        .map((field) => field.trim());
       // Kiểm tra xem các trường được chọn có hợp lệ không
-      if (selectedFields.every(field => columns.includes(field))) {
+      if (selectedFields.every((field) => columns.includes(field))) {
         return selectedFields;
       }
     }
     return [];
   };
 
-  const AnimatedCell = ({ field, value }) => (
-    <Animated.View style={[
-      styles.tableCell,
-      {
-        backgroundColor: animatedValues[field].interpolate({
-          inputRange: [0, 1],
-          outputRange: ['white', '#4CAF50']
-        })
+  const toggleTheoryVisibility = () => {
+    setTheoryVisible(!theoryVisible);
+  };
+
+  const TheorySection = () => {
+    if (!lessonData) return null;
+
+    return (
+      <View style={styles.theoryContainer}>
+        <Text style={styles.theorySectionTitle}>Lý Thuyết Bài Học</Text>
+        <Text style={styles.theoryText}>{lessonData.theory}</Text>
+      </View>
+    );
+  };
+
+  const scrollToBottom = (smooth = true) => {
+    if (Platform.OS === "web") {
+      try {
+        // Xử lý cuộn cho web
+        const scrollOptions = {
+          top: document.documentElement.scrollHeight,
+          left: 0,
+          behavior: smooth ? "smooth" : "auto",
+        };
+
+        if (window.scrollTo) {
+          window.scrollTo(scrollOptions);
+        } else if (window.pageYOffset !== undefined) {
+          window.scrollTo(0, document.documentElement.scrollHeight);
+        }
+      } catch (error) {
+        console.log("Lỗi cuộn trang web:", error);
       }
-    ]}>
-      <Text style={styles.cellText}>{value}</Text>
-    </Animated.View>
+    } else {
+      // Xử lý cuộn cho mobile
+      if (scrollViewRef?.current) {
+        scrollViewRef.current.scrollToEnd({ animated: smooth });
+      }
+    }
+  };
+
+  const DataTable = useMemo(
+    () => (
+      <View style={styles.table}>
+        <TableHeader columns={columns} />
+        {sampleData.map((item) => (
+          <TableRow
+            key={item.id}
+            item={item}
+            columns={columns}
+            currentField={currentField}
+          />
+        ))}
+      </View>
+    ),
+    [sampleData, columns, currentField]
   );
 
+  const ResultTable = useMemo(() => {
+    if (!result) return null;
+    return (
+      <View style={styles.table}>
+        <TableHeader columns={animatedFields} />
+        {result.map((item, index) => (
+          <TableRow
+            key={index}
+            item={item}
+            columns={animatedFields}
+            currentField={currentField}
+          />
+        ))}
+      </View>
+    );
+  }, [result, animatedFields, currentField]);
+
   return (
-    <ScrollView style={styles.container}>
-      <View style={styles.header}>
-        <TouchableOpacity onPress={() => navigation.goBack()} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>← Quay lại</Text>
+    <ScrollView style={[styles.container, { marginTop }]} ref={scrollViewRef}>
+      {/* <View style={styles.header}>
+        <TouchableOpacity
+          onPress={() => navigation.goBack()}
+          style={styles.headerButton}
+        >
+          <Ionicons name="arrow-back" size={30} color="black" />
         </TouchableOpacity>
         <Text style={styles.headerText}>
-          {lessonData ? lessonData.name : 'Câu lệnh SELECT'}
+          {lessonData ? lessonData.name : "Tiêu đề bài học"}
         </Text>
-        <TouchableOpacity onPress={handlePractice} style={styles.headerButton}>
-          <Text style={styles.headerButtonText}>Thực hành</Text>
+        <TouchableOpacity
+          onPress={handlePractice}
+          style={styles.headerRightButton}
+        >
+          <Ionicons name="book" size={24} color="black" />
+          <Text style={styles.headerButtonText}>Câu hỏi ôn tập</Text>
         </TouchableOpacity>
-      </View>
+      </View> */}
 
-      <View style={styles.inputSection}>
-        <TextInput
-          style={styles.input}
-          value={selectQuery}
-          onChangeText={handleQueryChange}
-          placeholder="Nhập câu lệnh SELECT (vd: SELECT ho, ten, tuoi FROM nhanvien)"
-          multiline
-        />
-        <TouchableOpacity style={styles.button} onPress={executeSelect} disabled={isAnimating}>
-          <Text style={styles.buttonText}>Thực hiện</Text>
-        </TouchableOpacity>
-      </View>
+      <LessonHeader lessonData={lessonData} />
 
-      <View style={styles.delayInputSection}>
-        <Text>Thời gian giữa các cột (ms):</Text>
-        <TextInput
-          style={styles.delayInput}
-          value={delayBetweenColumns}
-          onChangeText={handleDelayChange}
-          keyboardType="numeric"
-        />
-      </View>
-
-      {error && <Text style={styles.errorText}>{error}</Text>}
-
-      <View style={styles.dataSection}>
-        <Text style={styles.sectionTitle}>Dữ liệu mẫu:</Text>
-        <ScrollView horizontal>
-          <View style={styles.table}>
-            <View style={styles.tableRow}>
-              {columns.map(column => (
-                <View key={column} style={styles.tableHeader}>
-                  <Text style={styles.tableHeaderText}>{column}</Text>
-                </View>
-              ))}
-            </View>
-            {sampleData.map((item) => (
-              <View key={item.id} style={styles.tableRow}>
-                {columns.map(column => (
-                  <AnimatedCell key={column} field={column} value={item[column]} />
-                ))}
-              </View>
-            ))}
+      {theoryVisible && <TheorySection />}
+      <View style={{ padding: 10, flex: 1 }}>
+        <View style={styles.inputSection}>
+          <TextInput
+            style={styles.input}
+            value={selectQuery}
+            onChangeText={handleQueryChange}
+            placeholder="Nhập câu lệnh SELECT (vd: SELECT ho, ten, tuoi FROM nhanvien)"
+            multiline
+          />
+          <View
+            style={{
+              flexDirection: "column",
+              alignItems: "center",
+              justifyContent: "center",
+              flex: 1,
+            }}
+          >
+            <TouchableOpacity
+              style={[styles.theoryButton, { marginBottom: 10 }]}
+              onPress={toggleTheoryVisibility}
+            >
+              {theoryVisible ? (
+                <Ionicons
+                  name="information-circle-outline"
+                  size={24}
+                  color="black"
+                />
+              ) : (
+                <Ionicons
+                  name="information-circle-outline"
+                  size={24}
+                  color="black"
+                />
+              )}
+              <Text style={styles.theoryButtonText}>
+                {theoryVisible ? "Ẩn lý thuyết" : "Hiện lý thuyết"}
+              </Text>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={styles.button}
+              onPress={executeSelect}
+              disabled={isAnimating}
+            >
+              <Ionicons name="play" size={24} color="#FFF" />
+              <Text style={styles.buttonText}>Thực hiện</Text>
+            </TouchableOpacity>
           </View>
-        </ScrollView>
-      </View>
-
-      {result && (
-        <View style={styles.dataSection}>
-          <Text style={styles.sectionTitle}>Kết quả:</Text>
-          <ScrollView horizontal>
-            <View style={styles.table}>
-              <View style={styles.tableRow}>
-                {animatedFields.map(field => (
-                  <View key={field} style={styles.tableHeader}>
-                    <Text style={styles.headerText}>{field}</Text>
-                  </View>
-                ))}
-              </View>
-              {result.map((item, index) => (
-                <View key={index} style={styles.tableRow}>
-                  {animatedFields.map(field => (
-                    <AnimatedCell key={field} field={field} value={item[field]} />
-                  ))}
-                </View>
-              ))}
-            </View>
-          </ScrollView>
         </View>
-      )}
+
+        <View style={styles.delayInputSection}>
+          <Text>Thời gian giữa các cột (ms):</Text>
+          <TextInput
+            style={styles.delayInput}
+            value={delayBetweenColumns}
+            onChangeText={handleDelayChange}
+            keyboardType="numeric"
+          />
+        </View>
+
+        {error && <Text style={styles.errorText}>{error}</Text>}
+
+        <View style={styles.dataSection}>
+          <Text style={styles.sectionTitle}>Dữ liệu mẫu:</Text>
+          <ScrollView horizontal>{DataTable}</ScrollView>
+        </View>
+
+        {result && (
+          <View style={styles.dataSection}>
+            <Text style={styles.sectionTitle}>Kết quả:</Text>
+            <ScrollView horizontal>{ResultTable}</ScrollView>
+          </View>
+        )}
+      </View>
     </ScrollView>
   );
 };
@@ -244,35 +442,38 @@ const SelectAnimation = () => {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
-    padding: 20,
-    backgroundColor: '#fff',
+    backgroundColor: "#fff",
   },
   inputSection: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
+    flexDirection: "row",
+    justifyContent: "space-between",
     marginBottom: 20,
   },
   input: {
-    width: '70%',
-    height: 80,
-    borderColor: 'gray',
+    width: "80%",
+    borderColor: "gray",
     borderWidth: 1,
     paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 5,
-    textAlignVertical: 'top',
+    textAlignVertical: "top",
+    fontSize: 20,
   },
   button: {
-    width: '20%',
-    height: 40,
-    backgroundColor: '#4CAF50',
-    justifyContent: 'center',
-    alignItems: 'center',
+    height: 60,
+    paddingHorizontal: 20,
+    backgroundColor: "#4CAF50",
+    justifyContent: "center",
+    alignItems: "center",
     borderRadius: 5,
+    flexDirection: "row",
+    gap: 10,
   },
   buttonText: {
-    color: '#fff',
+    color: "#fff",
     fontSize: 16,
+    textAlign: "center",
+    fontWeight: "bold",
   },
   dataSection: {
     marginBottom: 20,
@@ -283,92 +484,133 @@ const styles = StyleSheet.create({
   },
   sampleTable: {
     borderWidth: 1,
-    borderColor: 'gray',
+    borderColor: "gray",
     width: width - 40,
   },
   table: {
-    borderWidth: 1,
-    borderColor: 'gray',
-    flexDirection: 'column',
+    flexDirection: "column",
   },
   tableRow: {
-    flexDirection: 'row',
-    borderBottomWidth: 1,
-    borderBottomColor: 'gray',
+    flexDirection: "row",
   },
   tableHeader: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: '#4CAF50',
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#4CAF50",
     padding: 10,
-    borderRightWidth: 1,
-    borderRightColor: 'white',
+    borderWidth: 1,
+    borderColor: "gray",
     minWidth: 100,
   },
   headerText: {
-    fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontSize: 20,
+    fontWeight: "bold",
+    color: "#2667df",
+    textAlign: "center",
   },
   tableCell: {
     flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    padding: 10,
-    borderRightWidth: 1,
-    borderRightColor: 'gray',
+    justifyContent: "center",
+    alignItems: "center",
+    borderWidth: 1,
+    borderColor: "gray",
     minWidth: 100,
+    backgroundColor: "white",
+    overflow: "hidden",
+    height: 40,
   },
   cellText: {
     fontSize: 14,
-    textAlign: 'center',
+    textAlign: "center",
+    zIndex: 1,
   },
   errorText: {
-    color: 'red',
+    color: "red",
     marginBottom: 10,
   },
   delayInputSection: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 10,
   },
   delayInput: {
     width: 100,
     height: 40,
-    borderColor: 'gray',
+    borderColor: "gray",
     borderWidth: 1,
     marginLeft: 10,
     paddingHorizontal: 10,
     borderRadius: 5,
   },
   header: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
-    marginBottom: 20,
+    flexDirection: "row",
+    alignItems: "center",
+    backgroundColor: theme.colors.statusBar,
+    paddingVertical: 10,
+    justifyContent: "space-between",
   },
   headerButton: {
     padding: 10,
   },
+  headerRightButton: {
+    padding: 10,
+    flexDirection: "row",
+    gap: 10,
+    backgroundColor: "#FFF",
+    borderRadius: 12,
+    marginRight: 20,
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+  },
   headerButtonText: {
-    fontSize: 16,
-    color: '#2667df',
+    fontSize: 18,
+    color: "#000",
   },
   headerText: {
     fontSize: 20,
-    fontWeight: 'bold',
-    color: '#2667df',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#000",
+    textAlign: "center",
   },
   // Thêm style riêng cho header của bảng
   tableHeaderText: {
     fontSize: 14,
-    fontWeight: 'bold',
-    color: '#fff',
-    textAlign: 'center',
+    fontWeight: "bold",
+    color: "#fff",
+    textAlign: "center",
+  },
+  theoryContainer: {
+    padding: 15,
+    backgroundColor: "#f0f0f0",
+    borderRadius: 10,
+    marginVertical: 10,
+  },
+  theorySectionTitle: {
+    fontSize: 20,
+    fontWeight: "bold",
+    marginBottom: 10,
+    textAlign: "center",
+  },
+  theoryText: {
+    fontSize: 16,
+    lineHeight: 24,
+    textAlign: "justify",
+  },
+  theoryButton: {
+    padding: 10,
+    borderRadius: 10,
+    marginVertical: 10,
+    flexDirection: "row",
+    backgroundColor: "#FFF",
+    borderWidth: 1,
+    borderColor: theme.colors.border,
+    alignItems: "center",
+    gap: 10,
+  },
+  theoryButtonText: {
+    fontWeight: "bold",
   },
 });
 
-export default SelectAnimation;
+export default React.memo(SelectAnimation);
